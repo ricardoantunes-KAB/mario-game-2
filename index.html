@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Super Mario World & KaBuM! Memory Challenge</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Fontes do Google -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800;900&family=Press+Start+2P&display=swap" rel="stylesheet">
+    <!-- FontAwesome para ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Canvas Confetti Library para comemoração -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'mario-red': '#E52521',
+                        'mario-blue': '#002244',
+                        'mario-sky': '#5C94FC',
+                        'mario-yellow': '#FCD116',
+                        'mario-green': '#43B047',
+                        'kabum-orange': '#FF6500',
+                        'kabum-dark': '#002B5B'
+                    },
+                    fontFamily: {
+                        'pixel': ['"Press Start 2P"', 'cursive'],
+                        'sans': ['Outfit', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        .perspective-1000 {
+            perspective: 1000px;
+        }
+        .transform-style-3d {
+            transform-style: preserve-3d;
+        }
+        .backface-hidden {
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+        }
+        .rotate-y-180 {
+            transform: rotateY(180deg);
+        }
+
+        @keyframes float-coin {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-10px) scale(1.05); }
+        }
+        .animate-coin {
+            animation: float-coin 2s ease-in-out infinite;
+        }
+
+        .glow-kabum {
+            box-shadow: 0 0 25px rgba(255, 101, 0, 0.7);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #002244;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #FF6500;
+            border-radius: 5px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #FCD116;
+        }
+    </style>
+</head>
+<body class="bg-mario-sky text-gray-900 font-sans antialiased selection:bg-mario-yellow selection:text-mario-blue overflow-x-hidden">
+
+    <!-- Header/Navegação Superior Retrô com tema Mario & KaBuM! -->
+    <header class="sticky top-0 z-40 bg-mario-red border-b-8 border-black shadow-2xl">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-wrap items-center justify-between gap-4">
+            <!-- Logo Mario + KaBuM! -->
+            <a href="#" class="flex items-center gap-3 group">
+                <div class="w-12 h-12 bg-mario-yellow rounded-xl border-4 border-black flex items-center justify-center font-pixel text-2xl text-mario-red shadow-[4px_4px_0px_#000] group-hover:scale-110 transition-transform">
+                    ?
+                </div>
+                <div>
+                    <h1 class="font-pixel text-yellow-300 text-base sm:text-lg drop-shadow-[2px_2px_0_#000]">SUPER MARIO</h1>
+                    <p class="font-pixel text-[10px] text-white tracking-widest flex items-center gap-1">
+                        X <span class="text-kabum-orange font-bold bg-black px-1.5 py-0.5 rounded border border-white">KaBuM!</span>
+                    </p>
+                </div>
+            </a>
+
+            <!-- Links de Navegação -->
+            <nav class="flex items-center gap-2 sm:gap-4 font-pixel text-xs">
+                <a href="#characters" class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-2 rounded-lg border-2 border-black shadow-[3px_3px_0px_#000] active:translate-y-1 active:shadow-none transition-all">
+                    Personagens
+                </a>
+                <a href="#game" class="bg-mario-yellow hover:bg-yellow-300 text-black px-3 py-2 rounded-lg border-2 border-black shadow-[3px_3px_0px_#000] active:translate-y-1 active:shadow-none transition-all flex items-center gap-2">
+                    <i class="fa-solid fa-gamepad text-mario-red"></i> JOGAR
+                </a>
+                <a href="#rewards" class="bg-kabum-orange hover:bg-orange-500 text-white px-3 py-2 rounded-lg border-2 border-black shadow-[3px_3px_0px_#000] active:translate-y-1 active:shadow-none transition-all flex items-center gap-1">
+                    <i class="fa-solid fa-ticket text-yellow-300"></i> CUPOM
+                </a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Banner -->
+    <section class="relative bg-gradient-to-b from-mario-sky via-sky-300 to-green-500 pt-12 pb-24 overflow-hidden border-b-8 border-black">
+        <div class="absolute top-8 left-10 text-white opacity-80 text-6xl select-none"><i class="fa-solid fa-cloud"></i></div>
+        <div class="absolute top-20 right-16 text-white opacity-90 text-8xl select-none hidden sm:block"><i class="fa-solid fa-cloud"></i></div>
+
+        <div class="max-w-6xl mx-auto px-4 text-center relative z-10">
+            <div class="inline-flex items-center gap-2 bg-black/60 backdrop-blur-md px-6 py-2 rounded-full border-2 border-kabum-orange text-white font-pixel text-xs mb-6 animate-bounce">
+                <span class="text-mario-yellow">⭐ DESAFIO ESPECIAL KABUM! ⭐</span>
+            </div>
+            
+            <h2 class="font-pixel text-3xl sm:text-5xl md:text-6xl text-white drop-shadow-[4px_4px_0_#000] leading-tight mb-6">
+                ENCONTRE OS PARES E GANHE <span class="text-kabum-orange font-bold drop-shadow-[4px_4px_0_#000]">10% OFF</span> NO KABUM!
+            </h2>
+            
+            <p class="text-xl sm:text-2xl text-white font-bold drop-shadow-[2px_2px_0_#000] max-w-3xl mx-auto mb-8 leading-relaxed">
+                Vença o jogo da memória do Reino Cogumelo para desbloquear o cupom de desconto exclusivo em produtos Nintendo e Gamers no KaBuM!
+            </p>
+
+            <div class="flex flex-wrap justify-center gap-4">
+                <a href="#game" class="bg-mario-yellow hover:bg-yellow-300 text-black font-pixel text-base px-8 py-4 rounded-2xl border-4 border-black shadow-[6px_6px_0px_#000] active:translate-y-1 active:shadow-[2px_2px_0px_#000] transition-all flex items-center gap-3">
+                    <i class="fa-solid fa-play text-mario-red text-xl"></i> JOGAR AGORA!
+                </a>
+                <a href="#rewards" class="bg-kabum-orange hover:bg-orange-600 text-white font-pixel text-base px-8 py-4 rounded-2xl border-4 border-black shadow-[6px_6px_0px_#000] active:translate-y-1 active:shadow-[2px_2px_0px_#000] transition-all flex items-center gap-3">
+                    <i class="fa-solid fa-gift text-yellow-300 text-xl"></i> MEU CUPOM
+                </a>
+            </div>
+        </div>
+
+        <div class="absolute -bottom-2 left-10 hidden md:block">
+            <div class="w-28 h-32 bg-mario-green border-4 border-black rounded-t-lg relative shadow-lg">
+                <div class="w-32 h-10 bg-mario-green border-4 border-black absolute -top-10 -left-2 rounded-t-md border-b-8"></div>
+            </div>
+        </div>
+        <div class="absolute -bottom-2 right-12 hidden md:block">
+            <div class="w-24 h-24 bg-mario-yellow border-4 border-black rounded-lg flex items-center justify-center font-pixel text-4xl text-mario-red shadow-[4px_4px_0px_#000] animate-coin">
+                ?
+            </div>
+        </div>
+    </section>
+
+    <!-- Seção de Personagens -->
+    <section id="characters" class="py-16 bg-mario-blue text-white border-b-8 border-black">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h2 class="font-pixel text-2xl sm:text-4xl text-mario-yellow drop-shadow-[3px_3px_0_#000] mb-4">
+                    PERSONAGENS PRINCIPAIS
+                </h2>
+                <p class="text-gray-300 text-lg max-w-2xl mx-auto font-medium">
+                    Conheça os heróis e vilões que você precisará combinar para resgatar seu cupom!
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Mario -->
+                <div class="bg-gray-800 rounded-2xl border-4 border-mario-red p-6 hover:-translate-y-2 transition-all duration-300 shadow-[6px_6px_0px_#E52521] group">
+                    <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-mario-red/20 border-4 border-mario-red flex items-center justify-center text-4xl group-hover:scale-110 transition-transform">
+                        🔴
+                    </div>
+                    <h3 class="font-pixel text-xl text-mario-red text-center mb-2">MARIO</h3>
+                    <p class="text-gray-300 text-sm leading-relaxed text-center">
+                        O herói destemido do Reino Cogumelo. Sempre pronto para enfrentar perigos e salvar o dia!
+                    </p>
+                </div>
+
+                <!-- Luigi -->
+                <div class="bg-gray-800 rounded-2xl border-4 border-mario-green p-6 hover:-translate-y-2 transition-all duration-300 shadow-[6px_6px_0px_#43B047] group">
+                    <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-mario-green/20 border-4 border-mario-green flex items-center justify-center text-4xl group-hover:scale-110 transition-transform">
+                        🟢
+                    </div>
+                    <h3 class="font-pixel text-xl text-mario-green text-center mb-2">LUIGI</h3>
+                    <p class="text-gray-300 text-sm leading-relaxed text-center">
+                        O leal irmão do Mario. Pode ser cauteloso, mas tem um coração gigante e saltos incríveis!
+                    </p>
+                </div>
+
+                <!-- Peach -->
+                <div class="bg-gray-800 rounded-2xl border-4 border-pink-400 p-6 hover:-translate-y-2 transition-all duration-300 shadow-[6px_6px_0px_#F472B6] group">
+                    <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-pink-500/20 border-4 border-pink-400 flex items-center justify-center text-4xl group-hover:scale-110 transition-transform">
+                        👑
+                    </div>
+                    <h3 class="font-pixel text-xl text-pink-400 text-center mb-2">PEACH</h3>
+                    <p class="text-gray-300 text-sm leading-relaxed text-center">
+                        A bondosa governante do Reino Cogumelo. Possui grande sabedoria e poderes mágicos.
+                    </p>
+                </div>
+
+                <!-- Bowser -->
+                <div class="bg-gray-800 rounded-2xl border-4 border-yellow-600 p-6 hover:-translate-y-2 transition-all duration-300 shadow-[6px_6px_0px_#CA8A04] group">
+                    <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-yellow-600/20 border-4 border-yellow-600 flex items-center justify-center text-4xl group-hover:scale-110 transition-transform">
+                        🐢
+                    </div>
+                    <h3 class="font-pixel text-xl text-yellow-500 text-center mb-2">BOWSER</h3>
+                    <p class="text-gray-300 text-sm leading-relaxed text-center">
+                        O temível Rei dos Koopas. Cuspidor de fogo e mestre em criar desafios épicos.
+                    </p>
+                </div>
+
+                <!-- Yoshi -->
+                <div class="bg-gray-800 rounded-2xl border-4 border-emerald-400 p-6 hover:-translate-y-2 transition-all duration-300 shadow-[6px_6px_0px_#34D399] group">
+                    <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-emerald-400/20 border-4 border-emerald-400 flex items-center justify-center text-4xl group-hover:scale-110 transition-transform">
+                        🦖
+                    </div>
+                    <h3 class="font-pixel text-xl text-emerald-400 text-center mb-2">YOSHI</h3>
+                    <p class="text-gray-300 text-sm leading-relaxed text-center">
+                        O companheiro dinossauro leal do Mario, sempre pronto para engolir obstáculos.
+                    </p>
+                </div>
+
+                <!-- Toad -->
+                <div class="bg-gray-800 rounded-2xl border-4 border-blue-400 p-6 hover:-translate-y-2 transition-all duration-300 shadow-[6px_6px_0px_#60A5FA] group">
+                    <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-blue-400/20 border-4 border-blue-400 flex items-center justify-center text-4xl group-hover:scale-110 transition-transform">
+                        🍄
+                    </div>
+                    <h3 class="font-pixel text-xl text-blue-400 text-center mb-2">TOAD</h3>
+                    <p class="text-gray-300 text-sm leading-relaxed text-center">
+                        Um morador super energizado do Reino Cogumelo. Sempre trazendo dicas valiosas!
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Seção do Jogo da Memória -->
+    <section id="game" class="py-16 bg-gradient-to-b from-sky-400 to-mario-sky border-b-8 border-black">
+        <div class="max-w-5xl mx-auto px-4">
+            
+            <!-- Painel do Jogo -->
+            <div class="bg-white rounded-3xl border-8 border-black p-6 sm:p-8 shadow-[12px_12px_0px_#000]">
+                
+                <!-- Cabeçalho & Dificuldades -->
+                <div class="flex flex-col md:flex-row items-center justify-between gap-4 mb-8 pb-6 border-b-4 border-gray-200">
+                    <div>
+                        <h2 class="font-pixel text-2xl sm:text-3xl text-mario-red drop-shadow-[2px_2px_0_#000] text-center md:text-left">
+                            🎮 JOGO DA MEMÓRIA MARIO
+                        </h2>
+                        <p class="text-gray-600 font-semibold text-sm text-center md:text-left mt-1">
+                            Encontre os pares para ganhar seu cupom do KaBuM!
+                        </p>
+                    </div>
+
+                    <div class="flex flex-wrap items-center justify-center gap-3">
+                        <button id="sound-toggle" class="bg-gray-200 hover:bg-gray-300 border-2 border-black p-2.5 rounded-xl font-pixel text-xs flex items-center justify-center transition-all shadow-[2px_2px_0px_#000]" title="Alternar Som">
+                            <i id="sound-icon" class="fa-solid fa-volume-high text-lg text-black"></i>
+                        </button>
+
+                        <div class="flex bg-gray-200 p-1 rounded-xl border-2 border-black font-pixel text-xs">
+                            <button id="btn-easy" onclick="setDifficulty('easy')" class="px-3 py-2 rounded-lg transition-all bg-mario-green text-white shadow-sm font-bold">Fácil</button>
+                            <button id="btn-medium" onclick="setDifficulty('medium')" class="px-3 py-2 rounded-lg transition-all text-gray-700 hover:text-black">Médio</button>
+                            <button id="btn-hard" onclick="setDifficulty('hard')" class="px-3 py-2 rounded-lg transition-all text-gray-700 hover:text-black">Difícil</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Status do Jogo -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8 bg-gray-100 p-4 rounded-2xl border-4 border-black font-pixel text-xs text-center">
+                    <div class="bg-white p-3 rounded-xl border-2 border-black shadow-[2px_2px_0px_#000]">
+                        <span class="block text-gray-500 mb-1">MOVIMENTOS</span>
+                        <span id="move-counter" class="text-xl text-mario-blue font-bold">0</span>
+                    </div>
+                    <div class="bg-white p-3 rounded-xl border-2 border-black shadow-[2px_2px_0px_#000]">
+                        <span class="block text-gray-500 mb-1">TEMPO</span>
+                        <span id="timer" class="text-xl text-mario-red font-bold">00:00</span>
+                    </div>
+                    <div class="bg-white p-3 rounded-xl border-2 border-black shadow-[2px_2px_0px_#000]">
+                        <span class="block text-gray-500 mb-1">PARES</span>
+                        <span id="pairs-counter" class="text-xl text-mario-green font-bold">0 / 6</span>
+                    </div>
+                    <button onclick="restartGame()" class="bg-mario-yellow hover:bg-yellow-400 text-black p-3 rounded-xl border-2 border-black shadow-[2px_2px_0px_#000] active:translate-y-1 active:shadow-none transition-all flex flex-col items-center justify-center gap-1 font-bold">
+                        <i class="fa-solid fa-rotate-right text-lg"></i> REINICIAR
+                    </button>
+                </div>
+
+                <!-- Tabuleiro do Jogo -->
+                <div id="memory-board" class="grid grid-cols-3 sm:grid-cols-4 gap-3 sm:gap-4 max-w-3xl mx-auto min-h-[350px]">
+                    <!-- Inserido dinamicamente via JavaScript -->
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Seção de Recompensas & Cupons Desbloqueados -->
+    <section id="rewards" class="py-16 bg-kabum-dark text-white border-b-8 border-black relative overflow-hidden">
+        <div class="max-w-4xl mx-auto px-4 text-center">
+            
+            <div class="inline-block bg-kabum-orange text-white px-6 py-2 rounded-full font-pixel text-xs mb-4 border-2 border-white shadow-[4px_4px_0px_#000]">
+                🎁 SUA RECOMPENSA KABUM!
+            </div>
+
+            <h2 class="font-pixel text-2xl sm:text-4xl text-mario-yellow mb-4 drop-shadow-[3px_3px_0_#000]">
+                CUPOM DE DESCONTO EXCLUSIVO
+            </h2>
+
+            <p class="text-gray-300 text-lg mb-8 max-w-2xl mx-auto font-medium">
+                Vença o Jogo da Memória acima para liberar seu cupom especial e garantir descontos no site do KaBuM!
+            </p>
+
+            <!-- Card de Status do Cupom -->
+            <div id="coupon-container" class="bg-gray-900 border-4 border-gray-700 rounded-3xl p-8 max-w-xl mx-auto shadow-2xl transition-all">
+                
+                <!-- Estado Oculto (Antes de Vencer) -->
+                <div id="coupon-locked-state" class="space-y-4">
+                    <div class="w-20 h-20 bg-gray-800 rounded-full border-4 border-gray-600 flex items-center justify-center mx-auto text-4xl text-gray-500">
+                        <i class="fa-solid fa-lock"></i>
+                    </div>
+                    <h3 class="font-pixel text-xl text-gray-400">CUPOM BLOQUEADO</h3>
+                    <p class="text-gray-400 text-sm">
+                        Complete uma partida do Jogo da Memória em qualquer dificuldade para liberar o código!
+                    </p>
+                    <a href="#game" class="inline-block bg-mario-yellow hover:bg-yellow-400 text-black font-pixel text-xs px-6 py-3 rounded-xl border-2 border-black shadow-[3px_3px_0px_#000] active:translate-y-1 transition-all">
+                        IR PARA O JOGO
+                    </a>
+                </div>
+
+                <!-- Estado Desbloqueado (Após Vencer) -->
+                <div id="coupon-unlocked-state" class="hidden space-y-6">
+                    <div class="inline-flex items-center gap-2 bg-green-500/20 text-green-400 border border-green-500/40 px-4 py-1.5 rounded-full font-pixel text-xs animate-pulse">
+                        <i class="fa-solid fa-circle-check"></i> DESBLOQUEADO COM SUCESSO!
+                    </div>
+
+                    <div class="bg-gradient-to-r from-kabum-orange to-orange-600 p-6 rounded-2xl border-4 border-black shadow-[6px_6px_0px_#000] text-white relative">
+                        <p class="font-pixel text-xs text-yellow-200 mb-1">CUPOM KABUM! - 10% OFF</p>
+                        <div class="flex items-center justify-center gap-3 bg-black/40 p-4 rounded-xl border-2 border-dashed border-white my-3">
+                            <span id="coupon-code-text" class="font-pixel text-2xl sm:text-3xl text-yellow-300 tracking-wider">MARIOKABUM10</span>
+                            <button onclick="copyCouponCode()" id="btn-copy-reward" class="bg-white hover:bg-gray-100 text-black font-pixel text-xs px-3 py-2 rounded-lg border-2 border-black shadow-[2px_2px_0px_#000] active:translate-y-0.5 transition-all">
+                                <i class="fa-solid fa-copy"></i> Copiar
+                            </button>
+                        </div>
+                        <p class="text-xs text-white/90 font-medium">Válido em produtos selecionados Nintendo & Gamers no KaBuM!</p>
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                        <a href="https://www.kabum.com.br" target="_blank" rel="noopener noreferrer" class="bg-kabum-orange hover:bg-orange-600 text-white font-pixel text-sm px-6 py-4 rounded-xl border-4 border-black shadow-[4px_4px_0px_#000] active:translate-y-1 transition-all flex items-center justify-center gap-2">
+                            IR PARA O KABUM! <i class="fa-solid fa-external-link text-xs"></i>
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Seção de Curiosidades -->
+    <section id="trivia" class="py-16 bg-mario-yellow border-b-8 border-black">
+        <div class="max-w-6xl mx-auto px-4">
+            <div class="text-center mb-12">
+                <h2 class="font-pixel text-2xl sm:text-4xl text-black drop-shadow-[2px_2px_0_#FFF]">
+                    ⭐ CURIOSIDADES DO MARIO ⭐
+                </h2>
+                <p class="text-black font-semibold text-lg max-w-xl mx-auto mt-2">
+                    Fatos divertidos que você talvez não sabia sobre a franquia!
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-white rounded-2xl border-4 border-black p-6 shadow-[6px_6px_0px_#000]">
+                    <div class="w-12 h-12 bg-mario-red rounded-xl border-2 border-black flex items-center justify-center text-white font-pixel text-xl mb-4">1</div>
+                    <h3 class="font-pixel text-base text-black mb-2">Jumpman Original</h3>
+                    <p class="text-gray-700 text-sm leading-relaxed">
+                        Em <em>Donkey Kong</em> (1981), o Mario chamava-se <strong>Jumpman</strong> e trabalhava como carpinteiro!
+                    </p>
+                </div>
+
+                <div class="bg-white rounded-2xl border-4 border-black p-6 shadow-[6px_6px_0px_#000]">
+                    <div class="w-12 h-12 bg-mario-green rounded-xl border-2 border-black flex items-center justify-center text-white font-pixel text-xl mb-4">2</div>
+                    <h3 class="font-pixel text-base text-black mb-2">Bigode por Limitação</h3>
+                    <p class="text-gray-700 text-sm leading-relaxed">
+                        O bigode e boné foram criados para facilitar a animação do personagem com os pixels limitados nos anos 80.
+                    </p>
+                </div>
+
+                <div class="bg-white rounded-2xl border-4 border-black p-6 shadow-[6px_6px_0px_#000]">
+                    <div class="w-12 h-12 bg-kabum-orange rounded-xl border-2 border-black flex items-center justify-center text-white font-pixel text-xl mb-4">3</div>
+                    <h3 class="font-pixel text-base text-black mb-2">Parceria KaBuM!</h3>
+                    <p class="text-gray-700 text-sm leading-relaxed">
+                        O KaBuM! é referência em e-commerce gamer no Brasil, trazendo os melhores consoles e jogos do Mario!
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODAL DE VITÓRIA / DESBLOQUEIO DE CUPOM KABUM -->
+    <div id="victory-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white border-8 border-black rounded-3xl p-6 sm:p-8 max-w-lg w-full text-center shadow-[16px_16px_0px_#000] relative animate-bounce-short">
+            
+            <div class="w-20 h-20 bg-mario-yellow rounded-full border-4 border-black flex items-center justify-center text-4xl mx-auto -mt-14 shadow-[4px_4px_0px_#000] animate-coin">
+                🏆
+            </div>
+
+            <h3 class="font-pixel text-2xl sm:text-3xl text-mario-red mt-4 mb-2 drop-shadow-[2px_2px_0_#000]">
+                PARABÉNS! VOCÊ VENCEU!
+            </h3>
+
+            <p class="text-gray-700 font-bold mb-6 text-base">
+                Você provou sua memória de Mestre Mario e desbloqueou uma recompensa especial do KaBuM!
+            </p>
+
+            <!-- Box do Cupom Desbloqueado -->
+            <div class="bg-gradient-to-r from-kabum-orange to-orange-600 p-5 rounded-2xl border-4 border-black text-white shadow-[4px_4px_0px_#000] mb-6">
+                <span class="font-pixel text-[10px] text-yellow-200">CUPOM DE DESCONTO EXCLUSIVO</span>
+                <div class="bg-black/50 p-3 rounded-xl border-2 border-dashed border-white my-2 flex items-center justify-between gap-2">
+                    <span class="font-pixel text-xl sm:text-2xl text-yellow-300">MARIOKABUM10</span>
+                    <button onclick="copyModalCouponCode()" id="btn-modal-copy" class="bg-white text-black font-pixel text-[10px] px-3 py-2 rounded border-2 border-black active:translate-y-0.5">
+                        <i class="fa-solid fa-copy"></i> Copiar
+                    </button>
+                </div>
+                <p class="text-xs text-white/90"><strong>10% OFF</strong> em produtos Nintendo & Gamers no KaBuM!</p>
+            </div>
+
+            <!-- Botões de Ação do Modal -->
+            <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                <a href="https://www.kabum.com.br" target="_blank" rel="noopener noreferrer" class="bg-kabum-orange hover:bg-orange-600 text-white font-pixel text-xs px-5 py-3.5 rounded-xl border-2 border-black shadow-[3px_3px_0px_#000] active:translate-y-1 transition-all flex items-center justify-center gap-2">
+                    IR PARA O KABUM! <i class="fa-solid fa-external-link"></i>
+                </a>
+                <button onclick="closeVictoryModal()" class="bg-mario-yellow hover:bg-yellow-400 text-black font-pixel text-xs px-5 py-3.5 rounded-xl border-2 border-black shadow-[3px_3px_0px_#000] active:translate-y-1 transition-all">
+                    JOGAR NOVAMENTE
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-black text-white py-10">
+        <div class="max-w-6xl mx-auto px-4 text-center">
+            <div class="font-pixel text-mario-yellow text-lg mb-2">SUPER MARIO X KABUM! MEMORY GAME</div>
+            <p class="text-gray-400 text-sm max-w-md mx-auto mb-6">
+                Hotsite comemorativo fan-made.
+            </p>
+            <div class="text-xs text-gray-600 font-pixel">
+                © 2026 - Desenvolvido para Fãs do Mario e do KaBuM!
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        /* ==========================================================================
+           1. WEB AUDIO API - EFEITOS SONOROS RETRÔ 8-BIT
+           ========================================================================== */
+        let audioCtx = null;
+        let isSoundMuted = false;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        function playNote(freq, duration, type = 'square', startDelay = 0) {
+            if (isSoundMuted) return;
+            try {
+                initAudio();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime + startDelay);
+
+                gain.gain.setValueAtTime(0.15, audioCtx.currentTime + startDelay);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + startDelay + duration);
+
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                osc.start(audioCtx.currentTime + startDelay);
+                osc.stop(audioCtx.currentTime + startDelay + duration);
+            } catch (e) {
+                console.error("Erro ao tocar áudio", e);
+            }
+        }
+
+        function playFlipSound() {
+            playNote(400, 0.08, 'sine');
+        }
+
+        function playCoinSound() {
+            playNote(987.77, 0.08, 'square', 0);     // B5
+            playNote(1318.51, 0.3, 'square', 0.08);  // E6
+        }
+
+        function playErrorSound() {
+            playNote(200, 0.15, 'sawtooth', 0);
+            playNote(150, 0.2, 'sawtooth', 0.1);
+        }
+
+        function playVictorySound() {
+            const notes = [
+                { f: 261.63, d: 0.15, time: 0 },    // C4
+                { f: 329.63, d: 0.15, time: 0.15 }, // E4
+                { f: 392.00, d: 0.15, time: 0.30 }, // G4
+                { f: 523.25, d: 0.15, time: 0.45 }, // C5
+                { f: 659.25, d: 0.15, time: 0.60 }, // E5
+                { f: 783.99, d: 0.4, time: 0.75 }   // G5
+            ];
+            notes.forEach(n => playNote(n.f, n.d, 'square', n.time));
+        }
+
+        document.getElementById('sound-toggle').addEventListener('click', () => {
+            isSoundMuted = !isSoundMuted;
+            const icon = document.getElementById('sound-icon');
+            if (isSoundMuted) {
+                icon.className = 'fa-solid fa-volume-xmark text-lg text-red-600';
+            } else {
+                icon.className = 'fa-solid fa-volume-high text-lg text-black';
+                playCoinSound();
+            }
+        });
+
+        /* ==========================================================================
+           2. LÓGICA DO JOGO DA MEMÓRIA
+           ========================================================================== */
+        const allItems = [
+            { id: 'mario', emoji: '🔴', name: 'Mario', color: 'bg-red-100 border-red-500' },
+            { id: 'luigi', emoji: '🟢', name: 'Luigi', color: 'bg-green-100 border-green-500' },
+            { id: 'peach', emoji: '👑', name: 'Peach', color: 'bg-pink-100 border-pink-400' },
+            { id: 'bowser', emoji: '🐢', name: 'Bowser', color: 'bg-yellow-100 border-yellow-600' },
+            { id: 'yoshi', emoji: '🦖', name: 'Yoshi', color: 'bg-emerald-100 border-emerald-500' },
+            { id: 'toad', emoji: '🍄', name: 'Toad', color: 'bg-blue-100 border-blue-400' },
+            { id: 'star', emoji: '⭐', name: 'Estrela', color: 'bg-amber-100 border-amber-400' },
+            { id: 'fireflower', emoji: '🔥', name: 'Flor de Fogo', color: 'bg-orange-100 border-orange-500' },
+            { id: 'coin', emoji: '🪙', name: 'Moeda', color: 'bg-yellow-100 border-yellow-500' },
+            { id: 'egg', emoji: '🥚', name: 'Ovo Yoshi', color: 'bg-green-100 border-green-400' }
+        ];
+
+        const difficultySettings = {
+            easy: { pairsCount: 6, colsClass: 'grid-cols-3 sm:grid-cols-4' },
+            medium: { pairsCount: 8, colsClass: 'grid-cols-4' },
+            hard: { pairsCount: 10, colsClass: 'grid-cols-4 sm:grid-cols-5' }
+        };
+
+        let currentDifficulty = 'easy';
+        let cards = [];
+        let flippedCards = [];
+        let matchedPairs = 0;
+        let moves = 0;
+        let timerSeconds = 0;
+        let timerInterval = null;
+        let isGameStarted = false;
+        let isLockBoard = false;
+
+        const memoryBoard = document.getElementById('memory-board');
+        const moveCounterEl = document.getElementById('move-counter');
+        const timerEl = document.getElementById('timer');
+        const pairsCounterEl = document.getElementById('pairs-counter');
+
+        function setDifficulty(diff) {
+            currentDifficulty = diff;
+            ['easy', 'medium', 'hard'].forEach(d => {
+                const btn = document.getElementById(`btn-${d}`);
+                if (d === diff) {
+                    btn.className = 'px-3 py-2 rounded-lg transition-all bg-mario-green text-white shadow-sm font-bold';
+                } else {
+                    btn.className = 'px-3 py-2 rounded-lg transition-all text-gray-700 hover:text-black';
+                }
+            });
+            restartGame();
+        }
+
+        function restartGame() {
+            clearInterval(timerInterval);
+            timerInterval = null;
+            timerSeconds = 0;
+            moves = 0;
+            matchedPairs = 0;
+            isGameStarted = false;
+            isLockBoard = false;
+            flippedCards = [];
+
+            moveCounterEl.innerText = '0';
+            timerEl.innerText = '00:00';
+            
+            const totalPairs = difficultySettings[currentDifficulty].pairsCount;
+            pairsCounterEl.innerText = `0 / ${totalPairs}`;
+
+            memoryBoard.className = `grid ${difficultySettings[currentDifficulty].colsClass} gap-3 sm:gap-4 max-w-3xl mx-auto min-h-[350px]`;
+
+            cards = createDeck(totalPairs);
+            renderBoard();
+        }
+
+        function createDeck(pairsCount) {
+            const selectedItems = allItems.slice(0, pairsCount);
+            const deck = [...selectedItems, ...selectedItems];
+            
+            for (let i = deck.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [deck[i], deck[j]] = [deck[j], deck[i]];
+            }
+
+            return deck.map((item, index) => ({
+                uniqueId: index,
+                id: item.id,
+                emoji: item.emoji,
+                name: item.name,
+                color: item.color,
+                isFlipped: false,
+                isMatched: false
+            }));
+        }
+
+        function renderBoard() {
+            memoryBoard.innerHTML = '';
+            cards.forEach(card => {
+                const cardEl = document.createElement('div');
+                cardEl.className = 'aspect-square perspective-1000 cursor-pointer select-none';
+                cardEl.setAttribute('data-id', card.uniqueId);
+
+                cardEl.innerHTML = `
+                    <div class="card-inner w-full h-full relative transform-style-3d transition-transform duration-500 ${card.isFlipped ? 'rotate-y-180' : ''}">
+                        <div class="card-front absolute inset-0 w-full h-full bg-mario-yellow border-4 border-black rounded-2xl flex items-center justify-center font-pixel text-2xl sm:text-3xl text-mario-red shadow-[4px_4px_0px_#000] hover:scale-105 transition-transform backface-hidden">
+                            ?
+                        </div>
+                        <div class="card-back absolute inset-0 w-full h-full ${card.color} border-4 border-black rounded-2xl flex flex-col items-center justify-center rotate-y-180 backface-hidden shadow-[4px_4px_0px_#000]">
+                            <span class="text-3xl sm:text-4xl drop-shadow">${card.emoji}</span>
+                            <span class="font-pixel text-[9px] sm:text-[10px] text-gray-800 mt-1 font-bold">${card.name}</span>
+                        </div>
+                    </div>
+                `;
+
+                cardEl.addEventListener('click', () => handleCardClick(card));
+                memoryBoard.appendChild(cardEl);
+            });
+        }
+
+        function handleCardClick(card) {
+            if (isLockBoard || card.isFlipped || card.isMatched) return;
+
+            if (!isGameStarted) {
+                startTimer();
+                isGameStarted = true;
+            }
+
+            card.isFlipped = true;
+            flippedCards.push(card);
+            playFlipSound();
+            updateCardUI(card.uniqueId);
+
+            if (flippedCards.length === 2) {
+                moves++;
+                moveCounterEl.innerText = moves;
+                checkMatch();
+            }
+        }
+
+        function updateCardUI(uniqueId) {
+            const cardEl = memoryBoard.querySelector(`[data-id="${uniqueId}"] .card-inner`);
+            if (cardEl) {
+                const card = cards.find(c => c.uniqueId === uniqueId);
+                if (card.isFlipped) {
+                    cardEl.classList.add('rotate-y-180');
+                } else {
+                    cardEl.classList.remove('rotate-y-180');
+                }
+            }
+        }
+
+        function checkMatch() {
+            isLockBoard = true;
+            const [card1, card2] = flippedCards;
+
+            if (card1.id === card2.id) {
+                card1.isMatched = true;
+                card2.isMatched = true;
+                matchedPairs++;
+                
+                const totalPairs = difficultySettings[currentDifficulty].pairsCount;
+                pairsCounterEl.innerText = `${matchedPairs} / ${totalPairs}`;
+
+                playCoinSound();
+                flippedCards = [];
+                isLockBoard = false;
+
+                if (matchedPairs === totalPairs) {
+                    handleVictory();
+                }
+            } else {
+                playErrorSound();
+                setTimeout(() => {
+                    card1.isFlipped = false;
+                    card2.isFlipped = false;
+                    updateCardUI(card1.uniqueId);
+                    updateCardUI(card2.uniqueId);
+                    flippedCards = [];
+                    isLockBoard = false;
+                }, 1000);
+            }
+        }
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                timerSeconds++;
+                const mins = String(Math.floor(timerSeconds / 60)).padStart(2, '0');
+                const secs = String(timerSeconds % 60).padStart(2, '0');
+                timerEl.innerText = `${mins}:${secs}`;
+            }, 1000);
+        }
+
+        /* ==========================================================================
+           3. SISTEMA DE RECOMPENSA KABUM & LOCALSTORAGE
+           ========================================================================== */
+        const COUPON_STORAGE_KEY = 'mario_kabum_coupon_unlocked';
+
+        function handleVictory() {
+            clearInterval(timerInterval);
+            playVictorySound();
+
+            if (typeof confetti === 'function') {
+                confetti({
+                    particleCount: 150,
+                    spread: 90,
+                    origin: { y: 0.6 }
+                });
+            }
+
+            // Desbloquear e salvar no LocalStorage
+            unlockKabumCoupon();
+
+            // Exibir modal de vitória após 400ms
+            setTimeout(() => {
+                document.getElementById('victory-modal').classList.remove('hidden');
+            }, 400);
+        }
+
+        function unlockKabumCoupon() {
+            localStorage.setItem(COUPON_STORAGE_KEY, 'true');
+            checkCouponStatus();
+        }
+
+        function checkCouponStatus() {
+            const isUnlocked = localStorage.getItem(COUPON_STORAGE_KEY) === 'true';
+            const lockedEl = document.getElementById('coupon-locked-state');
+            const unlockedEl = document.getElementById('coupon-unlocked-state');
+
+            if (isUnlocked) {
+                lockedEl.classList.add('hidden');
+                unlockedEl.classList.remove('hidden');
+            } else {
+                lockedEl.classList.remove('hidden');
+                unlockedEl.classList.add('hidden');
+            }
+        }
+
+        function closeVictoryModal() {
+            document.getElementById('victory-modal').classList.add('hidden');
+            restartGame();
+        }
+
+        // Função universal para copiar cupom
+        function copyTextToClipboard(text, buttonEl) {
+            const tempInput = document.createElement('input');
+            tempInput.value = text;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+
+            const originalHTML = buttonEl.innerHTML;
+            buttonEl.innerHTML = `<i class="fa-solid fa-check"></i> Copiado!`;
+            buttonEl.classList.add('bg-green-500', 'text-white');
+
+            setTimeout(() => {
+                buttonEl.innerHTML = originalHTML;
+                buttonEl.classList.remove('bg-green-500', 'text-white');
+            }, 2000);
+        }
+
+        function copyCouponCode() {
+            const btn = document.getElementById('btn-copy-reward');
+            copyTextToClipboard('MARIOKABUM10', btn);
+        }
+
+        function copyModalCouponCode() {
+            const btn = document.getElementById('btn-modal-copy');
+            copyTextToClipboard('MARIOKABUM10', btn);
+        }
+
+        // Inicializar na Carga da Página
+        window.onload = function() {
+            restartGame();
+            checkCouponStatus();
+        };
+    </script>
+</body>
+</html>
